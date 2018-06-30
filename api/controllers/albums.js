@@ -2,6 +2,18 @@ const { sendResponse } = require("../utils/responseUtils");
 const csv = require("csvtojson/v1");
 const Albums = require("../models/albums");
 
+module.exports.getAlbums = async (req, res, next) => {
+  Albums.paginate(res.locals.query || {}, res.locals.options)
+  .then(docs => {
+     sendResponse(res, 200, docs)
+     return
+  })
+  .catch(err => {
+     sendResponse(res, 400, err)
+     return
+  })
+}
+
 module.exports.uploadCSV = async (req, res, next) => {
   console.log("req.file, req.body =", req.file, req.body);
   if (!req.file) {
@@ -49,6 +61,8 @@ module.exports.uploadCSV = async (req, res, next) => {
               return;
             })
             .catch(err => {
+              console.log('err =', err);
+              
               sendResponse(res, 400, "ISSUE SAVING NEW ALBUMS");
               return;
             });

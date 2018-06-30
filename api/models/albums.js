@@ -57,6 +57,7 @@ let albumSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 albumSchema.plugin(mongoosePaginate);
+albumSchema.index({albumName: "text", artistName: "text", genres: "text"})
 albumSchema.index({spotifyURI: 1}, {unique: true})
 
 module.exports = mongoose.model("Albums", albumSchema)
