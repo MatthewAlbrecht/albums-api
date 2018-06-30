@@ -3,9 +3,6 @@ module.exports.buildQueryAndOptions = (req, res, next) => {
   let {
     lessThanListenDate,
     greaterThanListenDate,
-    albumName,
-    artistName,
-    recomendedBy,
     lessThanAlbumLengthInMinutes,
     greaterThanAlbumLengthInMinutes,
     lessThanAlbumYear,
