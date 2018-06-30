@@ -1,9 +1,6 @@
 const mongoose = require ("mongoose"); // The reason for this demo.
 const dbURI = process.env.MONGODB_URI || undefined
 
-if (process.env.SEED) {
-   require('../seeds/index')
-}
 mongoose.connect(dbURI, {})
 
 mongoose.connection.on('connected', () => {
