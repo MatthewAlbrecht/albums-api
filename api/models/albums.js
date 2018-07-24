@@ -2,6 +2,10 @@ var mongoose =  require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 
 let albumSchema = new mongoose.Schema({
+  orderNumber: {
+    type: Number,
+    required: '{PATH} is required'
+  },
   listenDate: {
     type: Date,
     required: '{PATH} is required'
@@ -59,5 +63,6 @@ let albumSchema = new mongoose.Schema({
 albumSchema.plugin(mongoosePaginate);
 albumSchema.index({albumName: "text", artistName: "text", genres: "text"})
 albumSchema.index({spotifyURI: 1}, {unique: true})
+albumSchema.index({orderNumber: 1}, {unique: true})
 
 module.exports = mongoose.model("Albums", albumSchema)

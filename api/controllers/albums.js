@@ -2,17 +2,43 @@ const { sendResponse } = require("../utils/responseUtils");
 const csv = require("csvtojson/v1");
 const Albums = require("../models/albums");
 
+module.exports.createAlbum = async (req, res, next) => {
+  // grab relevent variables
+  let { listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber } = req.body;
+
+  // fashion data to fit model
+  shortestTrackInSeconds =
+    +shortestTrackInSeconds.split(":")[0] * 60 +
+    +shortestTrackInSeconds.split(":")[1];
+  longestTrackInSeconds =
+    +longestTrackInSeconds.split(":")[0] * 60 +
+    +longestTrackInSeconds.split(":")[1];
+  genres = genres.split(/[\,\/\ ]+/);
+  hasTitleTrack = hasTitleTrack === "true" || hasTitleTrack === "TRUE";
+
+  // create album
+  Albums.create({ listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber })
+    .then(result => {
+      sendResponse(res, 201, result);
+      return
+    })
+    .catch(err => {
+      sendResponse(res, 400, err);
+      return;
+    });
+};
+
 module.exports.getAlbums = async (req, res, next) => {
   Albums.paginate(res.locals.query || {}, res.locals.options)
-  .then(docs => {
-     sendResponse(res, 200, docs)
-     return
-  })
-  .catch(err => {
-     sendResponse(res, 400, err)
-     return
-  })
-}
+    .then(docs => {
+      sendResponse(res, 200, docs);
+      return;
+    })
+    .catch(err => {
+      sendResponse(res, 400, err);
+      return;
+    });
+};
 
 module.exports.uploadCSV = async (req, res, next) => {
   console.log("req.file, req.body =", req.file, req.body);
@@ -23,12 +49,12 @@ module.exports.uploadCSV = async (req, res, next) => {
     results = [],
     albums;
   try {
-    albums = await Albums.find().lean()
+    albums = await Albums.find().lean();
   } catch (error) {
-    sendResponse(res, 400, error)
+    sendResponse(res, 400, error);
   }
 
-  let albumURIs = albums.map(album => album.spotifyURI)
+  let albumURIs = albums.map(album => album.spotifyURI);
 
   csv()
     .fromString(req.file.buffer)
@@ -37,6 +63,7 @@ module.exports.uploadCSV = async (req, res, next) => {
       console.log("headers =", headers);
     })
     .on("json", row => {
+      row.spotifyURI = row.spotifyURI.split(":")[2];
       row.genres = row.genres.split(/[\,\/\ ]+/);
       row.hasTitleTrack = row.hasTitleTrack === "TRUE";
       row.shortestTrackInSeconds =
@@ -61,18 +88,18 @@ module.exports.uploadCSV = async (req, res, next) => {
               return;
             })
             .catch(err => {
-              console.log('err =', err);
-              
+              console.log("err =", err);
+
               sendResponse(res, 400, "ISSUE SAVING NEW ALBUMS");
               return;
             });
         } else {
-          sendResponse(res, 203, "NO NEW ALBUMS TO SAVE")
+          sendResponse(res, 203, "NO NEW ALBUMS TO SAVE");
         }
       }
     })
     .on("error", error => {
       sendResponse(res, 400, error);
-      // catch it here
+      return
     });
 };
