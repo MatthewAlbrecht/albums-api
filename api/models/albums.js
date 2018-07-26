@@ -57,6 +57,9 @@ let albumSchema = new mongoose.Schema({
   spotifyURI: {
     type: String,
     required: '{PATH} is required'
+  },
+  spotifyAlbumData: {
+    type: Object
   }
 }, { timestamps: true })
 

@@ -14,4 +14,8 @@ const ctrlAuth = require('./controllers/auth');
 router.get('/login', ctrlAuth.login)
 router.get('/callback', ctrlAuth.callback)
 
+const ctrlMisc = require('./controllers/misc');
+router.put('/albums/spotify-data', ctrlMisc.spotifyData)
+
+
 module.exports = router

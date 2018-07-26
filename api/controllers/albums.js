@@ -4,7 +4,7 @@ const Albums = require("../models/albums");
 
 module.exports.createAlbum = async (req, res, next) => {
   // grab relevent variables
-  let { listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber } = req.body;
+  let { album, listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber } = req.body;
 
   // fashion data to fit model
   shortestTrackInSeconds =
@@ -17,8 +17,9 @@ module.exports.createAlbum = async (req, res, next) => {
   hasTitleTrack = hasTitleTrack === "true" || hasTitleTrack === "TRUE";
 
   // create album
-  Albums.create({ listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber })
+  Albums.create({ spotifyAlbumData: album, listenDate, albumName, artistName, albumLengthInMinutes, albumYear, albumTotalTracks, genres, recomendedBy, rating, hasTitleTrack, shortestTrackInSeconds, longestTrackInSeconds, spotifyURI, orderNumber })
     .then(result => {
+      console.log('\n=== result ===\n');
       sendResponse(res, 201, result);
       return
     })
@@ -29,6 +30,7 @@ module.exports.createAlbum = async (req, res, next) => {
 };
 
 module.exports.getAlbums = async (req, res, next) => {
+  console.log('\n---> res.locals <---\n', res.locals, '\n');
   Albums.paginate(res.locals.query || {}, res.locals.options)
     .then(docs => {
       sendResponse(res, 200, docs);
