@@ -1,4 +1,5 @@
 const { sendResponse } = require("../utils/responseUtils");
+const { lightSelectArray } = require("../utils/arrays");
 const csv = require("csvtojson/v1");
 const Albums = require("../models/albums");
 
@@ -30,7 +31,9 @@ module.exports.createAlbum = async (req, res, next) => {
 };
 
 module.exports.getAlbums = async (req, res, next) => {
-  console.log('\n---> res.locals <---\n', res.locals, '\n');
+  if (req.query.light === "true") {
+    res.locals.options = {...res.locals.options, select: lightSelectArray}
+  }
   Albums.paginate(res.locals.query || {}, res.locals.options)
     .then(docs => {
       sendResponse(res, 200, docs);
