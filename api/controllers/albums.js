@@ -34,6 +34,7 @@ module.exports.getAlbums = async (req, res, next) => {
   if (req.query.light === "true") {
     res.locals.options = {...res.locals.options, select: lightSelectArray}
   }
+  console.log('\n---> res.locals.query <---\n', res.locals.query, '\n');
   Albums.paginate(res.locals.query || {}, res.locals.options)
     .then(docs => {
       sendResponse(res, 200, docs);

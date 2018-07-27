@@ -108,7 +108,16 @@ module.exports.buildQueryAndOptions = (req, res, next) => {
   }
 
   if (search) {
-    query.$text = { $search: search } 
+    if (!query.hasOwnProperty('$or')) {
+      query.$or = []
+    }
+    search = search.split(" ")
+    console.log('\n=== HERE ===\n');
+    ["albumName", "artistName"].forEach(prop => {
+      search.forEach(word => {
+        query.$or.push({[prop]: {$regex: word, $options: "i"}})
+      })
+    })
   }
 
   if (page) {
