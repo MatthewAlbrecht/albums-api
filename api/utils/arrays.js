@@ -17,3 +17,23 @@ module.exports.lightSelectArray = [
   "-spotifyAlbumData.type",
   "-spotifyAlbumData.uri",
 ].join(" ")
+
+module.exports.lightProjectObject = {
+  "spotifyAlbumData.album_type": false,
+  "spotifyAlbumData.artists": false,
+  "spotifyAlbumData.available_markets": false,
+  "spotifyAlbumData.copyrights": false,
+  "spotifyAlbumData.external_ids": false,
+  "spotifyAlbumData.external_urls": false,
+  "spotifyAlbumData.genres": false,
+  "spotifyAlbumData.href": false,
+  "spotifyAlbumData.id": false,
+  "spotifyAlbumData.label": false,
+  "spotifyAlbumData.tracks": false,
+  "spotifyAlbumData.name": false,
+  "spotifyAlbumData.popularity": false,
+  "spotifyAlbumData.release_date": false,
+  "spotifyAlbumData.release_date_precision": false,
+  "spotifyAlbumData.type": false,
+  "spotifyAlbumData.uri": false,
+}

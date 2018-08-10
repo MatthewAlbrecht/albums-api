@@ -20,7 +20,8 @@ module.exports.buildQueryAndOptions = (req, res, next) => {
     page,
     limit,
     sort,
-    search
+    search,
+    dayOfWeek
   } = req.query;
 
   let options = {};
@@ -103,6 +104,10 @@ module.exports.buildQueryAndOptions = (req, res, next) => {
     }
   }
 
+  if (dayOfWeek) {
+    query.dayOfWeek = +dayOfWeek
+  }
+
   if (hasTitleTrack) {
     query.hasTitleTrack = hasTitleTrack === "true"
   }
@@ -141,5 +146,29 @@ module.exports.buildQueryAndOptions = (req, res, next) => {
 
   res.locals.query = query;
   res.locals.options = options;
+  matchifyQuery(res)
+  console.log('\n---> res.locals <---\n', res.locals, '\n');
   next();
 };
+
+function matchifyQuery(res) {
+  res.locals.matchifiedQuery = Object.assign({}, res.locals.query)
+  for (const queryProperty in res.locals.matchifiedQuery) {
+      const queryValue = res.locals.matchifiedQuery[queryProperty];
+
+      // if greater or less than change value to type number
+      if (queryValue.$lte && !isNaN(queryValue.$lte) && typeof queryValue.$lte !== "object") {
+        queryValue.$lte = +queryValue.$lte
+      }
+      if (queryValue.$lt && !isNaN(queryValue.$lt) && typeof queryValue.$lt !== "object") {
+        queryValue.$lt = +queryValue.$lt
+      }
+      if (queryValue.$gte && !isNaN(queryValue.$gte) && typeof queryValue.$gte !== "object") {
+        queryValue.$gte = +queryValue.$gte
+      }
+      if (queryValue.$gt && !isNaN(queryValue.$gt) && typeof queryValue.$gt !== "object") {
+        queryValue.$gt = +queryValue.$gt
+      }
+      
+  }
+}
