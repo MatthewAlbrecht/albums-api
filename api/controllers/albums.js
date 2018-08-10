@@ -1,5 +1,6 @@
 const { sendResponse } = require("../utils/responseUtils");
-const { lightSelectArray } = require("../utils/arrays");
+const { lightProjectObject } = require("../utils/arrays");
+const { getMean } = require("../utils");
 const csv = require("csvtojson/v1");
 const Albums = require("../models/albums");
 
@@ -31,19 +32,124 @@ module.exports.createAlbum = async (req, res, next) => {
 };
 
 module.exports.getAlbums = async (req, res, next) => {
-  if (req.query.light === "true") {
-    res.locals.options = {...res.locals.options, select: lightSelectArray}
-  }
-  console.log('\n---> res.locals.query <---\n', res.locals.query, '\n');
-  Albums.paginate(res.locals.query || {}, res.locals.options)
-    .then(docs => {
-      sendResponse(res, 200, docs);
-      return;
+  Albums.aggregate([
+    { $project: lightProjectObject },
+    { $addFields: { "dayOfWeek": {"$dayOfWeek": "$listenDate"}} },
+    { $match:  res.locals.matchifiedQuery || {} },
+    { $facet: {
+      docs: [
+        { $sort: res.locals.options.sort },
+        { $skip: (res.locals.options.page - 1) * 25 },
+        { $limit: res.locals.options.limit }    
+      ],
+      pageInfo: [
+        { $group: {
+          _id: null, 
+          totalDocs: { $sum: 1 },
+          albumLengthInMinutesTotal: { $sum: "$albumLengthInMinutes" },
+          albumTotalTracksTotal: { $sum: "$albumTotalTracks" },
+          ratingAverage: { $avg: "$rating" },
+          albumTotalTracksAverage: { $avg: "$albumTotalTracks" },
+          albumLengthInMinutesAverage: { $avg: "$albumLengthInMinutes" },
+          albumYearAverage: { $avg: "$albumYear" },
+          albumYearMode: { $push: "$albumYear" },
+          ratingMode: { $push: "$rating" },
+          albumTotalTracksMode: { $push: "$albumTotalTracks" },
+          albumLengthInMinutesMode: { $push: "$albumLengthInMinutes" },
+          albumYearsMin: { $min: "$albumYear" },
+          ratingsMin: { $min: "$rating" },
+          albumTotalTracksMin: { $min: "$albumTotalTracks" },
+          albumLengthInMinutesMin: { $min: "$albumLengthInMinutes" },
+          albumYearsMax: { $max: "$albumYear" },
+          ratingsMax: { $max: "$rating" },
+          albumTotalTracksMax: { $max: "$albumTotalTracks" },
+          albumLengthInMinutesMax: { $max: "$albumLengthInMinutes" },
+        }}
+      ]
+    }}
+  ])
+  .then(([albums]) => {
+    let { limit, page } = res.locals.options
+    if (!albums.pageInfo.length) {
+      return sendResponse(res, 200, { docs: [], page: 1, pages: 1, total: 0, limit })
+    }
+    let { 
+      docs, 
+      pageInfo: [
+        { 
+          totalDocs: total, 
+          totalDocs, 
+          albumLengthInMinutesTotal, 
+          albumTotalTracksTotal, 
+          ratingAverage, 
+          albumTotalTracksAverage, 
+          albumLengthInMinutesAverage, 
+          albumYearAverage, 
+          albumYearMode, 
+          ratingMode, 
+          albumTotalTracksMode, 
+          albumLengthInMinutesMode,
+          albumYearsMin,
+          ratingsMin,
+          albumTotalTracksMin,
+          albumLengthInMinutesMin,
+          albumYearsMax,
+          ratingsMax,
+          albumTotalTracksMax,
+          albumLengthInMinutesMax,
+        }
+      ]} = albums
+    albumYearMode = getMean(albumYearMode)
+    ratingMode = getMean(ratingMode)
+    albumTotalTracksMode = getMean(albumTotalTracksMode)
+    albumLengthInMinutesMode = getMean(albumLengthInMinutesMode)
+    sendResponse(res, 200, {
+      docs, 
+      total, 
+      pages: Math.ceil(+total/+limit), 
+      page, 
+      limit, 
+      stats: {
+        albumTotalTracks: {
+          min: albumTotalTracksMin, 
+          max: albumTotalTracksMax,
+          avg: albumTotalTracksAverage,
+          mode: albumTotalTracksMode,
+          total: albumTotalTracksTotal
+        },
+        rating: {
+          min: ratingsMin, 
+          max: ratingsMax,
+          avg: ratingAverage,
+          mode: ratingMode
+        },
+        albumLengthInMinutes: {
+          min: albumLengthInMinutesMin, 
+          max: albumLengthInMinutesMax,
+          avg: albumLengthInMinutesAverage,
+          mode: albumLengthInMinutesMode,
+          total: albumLengthInMinutesTotal    
+        },
+        albumYear: {
+          min: albumYearsMin, 
+          max: albumYearsMax,
+          avg: albumYearAverage,
+          mode: albumYearMode
+        },
+        totalDocs, 
+          min: albumLengthInMinutesMin,
+          max: albumLengthInMinutesMax,
+          avg: albumLengthInMinutesAverage, 
+          mode: albumLengthInMinutesMode,
+          total: albumLengthInMinutesTotal  
+      }
     })
-    .catch(err => {
-      sendResponse(res, 400, err);
-      return;
-    });
+    return
+  })
+  .catch(err => {
+    sendResponse(res, 400, err)
+    return
+  })
 };
 
 module.exports.uploadCSV = async (req, res, next) => {
@@ -109,3 +215,5 @@ module.exports.uploadCSV = async (req, res, next) => {
       return
     });
 };
+
+

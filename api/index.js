@@ -17,7 +17,6 @@ router.get('/callback', ctrlAuth.callback)
 const ctrlMisc = require('./controllers/misc');
 router.put('/albums/spotify-data', ctrlMisc.spotifyData)
 router.get('/albums/genres', ctrlMisc.getGenres)
-router.get('/albums/test', buildQueryAndOptions, ctrlMisc.test)
 
 
 module.exports = router
