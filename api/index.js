@@ -10,7 +10,7 @@ const ctrlMisc = require('./controllers/misc');
 
 // album routes
 router.get('/albums', buildQueryAndOptions, ctrlAlbums.getAlbums)
-router.post('/album-csv', upload.single("file"), ctrlAlbums.uploadCSV)
+router.post('/album-csv', ctrlAuth.authorize, upload.single("file"), ctrlAlbums.uploadCSV)
 router.post('/albums', ctrlAuth.authorize, ctrlAlbums.createAlbum)
 
 // auth routes and middleware
@@ -21,7 +21,7 @@ router.post('/register', ctrlAuth.signup)
 router.get('/refresh', ctrlAuth.refresh)
 
 // misc routes
-router.put('/albums/spotify-data', ctrlMisc.spotifyData)
+router.put('/albums/spotify-data', ctrlAuth.authorize, ctrlMisc.spotifyData)
 router.get('/albums/genres', ctrlMisc.getGenres)
 
 

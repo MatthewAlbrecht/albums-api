@@ -4,12 +4,11 @@ const rp = require("request-promise");
 let querystring = require("querystring");
 let { lightProjectObject } =  require('../utils/arrays')
 
-let accessToken =
-"BQBF7ri0sIXVvQaVlYygrPWT6JJVMLaUarV70OcxtIrkBbkluOtdcTgOioBAKC4IhzL4as16euGcVEK1dhECohmWnhKQzJXJX5s2jLutsB4vkDJxTjCTF83iQnB_w8idN7f4JpAesiPS5SSzLSDelinsIqC77jgw";
 module.exports.spotifyData = async (req, res, next) => {
+  let accessToken = req.headers['spotify-access-token'];
   let albums;
   try {
-    albums = await Albums.find({});
+    albums = await Albums.find({spotifyAlbumData: {$exists: false}});
   } catch (error) {
     sendResponse(res, 400, error);
     return;

@@ -90,7 +90,7 @@ module.exports.authorize = (req, res, next) => {
 }
 
 module.exports.refresh = async (req, res, next) => {
-  var token = req.headers['x-access-token'];
+  let token = req.headers['x-access-token'];
   if (!token) return sendResponse(res, 401, { auth: false, message: 'No token provided.' });
   
   jwt.verify(token, process.env.APP_SECRET, async function(err, decoded) {
