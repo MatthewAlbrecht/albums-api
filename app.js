@@ -7,7 +7,7 @@ var indexRouter = require('./api/index');
 
 require('dotenv').config()
 require('./api/models/db')
-const whitelist = ['http://localhost:3000']
+const whitelist = ['http://localhost:3000', 'https://mattalbrecht.herokuapp.com']
 let corsOptions = {
    origin: function (origin, callback) {
       if (whitelist.indexOf(origin) !== -1) {
@@ -20,7 +20,7 @@ let corsOptions = {
 
 var app = express();
 
-app.use("*", cors())
+app.use("*", cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
