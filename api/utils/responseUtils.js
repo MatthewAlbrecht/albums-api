@@ -14,7 +14,7 @@ module.exports.sendResponse = (res, status, content, next) => {
     if (code || message) {
       content = { code, message };
     }
-
+    console.log('\n---> content <---\n', content, '\n');
     res.json({ error: content });
   } else if (typeof content === "string") {
     res.json({ message: content });

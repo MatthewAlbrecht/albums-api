@@ -6,6 +6,7 @@
     "start": "nodemon app.js"
   },
   "dependencies": {
+    "bcrypt": "^3.0.0",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
     "csvtojson": "^2.0.4",
@@ -14,6 +15,7 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.3.0",
     "moment": "^2.22.2",
     "mongoose": "^5.1.7",
     "mongoose-paginate": "^5.0.3",

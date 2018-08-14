@@ -4,17 +4,23 @@ const multer  = require('multer')
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage})
 const { buildQueryAndOptions } = require('./utils/queryUtils');
-
 const ctrlAlbums = require('./controllers/albums');
+const ctrlAuth = require('./controllers/auth');
+const ctrlMisc = require('./controllers/misc');
+
+// album routes
 router.get('/albums', buildQueryAndOptions, ctrlAlbums.getAlbums)
 router.post('/album-csv', upload.single("file"), ctrlAlbums.uploadCSV)
-router.post('/albums', ctrlAlbums.createAlbum)
+router.post('/albums', ctrlAuth.authorize, ctrlAlbums.createAlbum)
 
-const ctrlAuth = require('./controllers/auth');
-router.get('/login', ctrlAuth.login)
+// auth routes and middleware
+router.get('/auth-login', ctrlAuth.authLogin)
 router.get('/callback', ctrlAuth.callback)
+router.put('/login', ctrlAuth.login)
+router.post('/register', ctrlAuth.signup)
+router.get('/refresh', ctrlAuth.refresh)
 
-const ctrlMisc = require('./controllers/misc');
+// misc routes
 router.put('/albums/spotify-data', ctrlMisc.spotifyData)
 router.get('/albums/genres', ctrlMisc.getGenres)
 
